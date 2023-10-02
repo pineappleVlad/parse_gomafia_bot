@@ -9,7 +9,7 @@ bot = telebot.TeleBot(TOKEN)
 @bot.message_handler(commands=['start'])
 def start(message):
     bot.send_message(message.chat.id, 'Привет! Если хочешь узнать свою статистику по лх за все турниры на gomafia, введи айди своего ника (посмотреть можно, открыв ссылку профиля).')
-    bot.send_message(message.chat.id, 'Статистика может быть не совсем правильная из-за коэффициента в финале и округления допа')
+    bot.send_message(message.chat.id, 'Статистика может быть не совсем правильная из-за коэффициента в финале и округления допа, а также, если вы меняли ник')
 
 @bot.message_handler()
 def stat(message):
