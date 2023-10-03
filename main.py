@@ -2,7 +2,7 @@ import aiohttp
 import asyncio
 from fake_headers import Headers
 from bs4 import BeautifulSoup
-import time
+import unicodedata
 
 async def get_headers():
     headers = Headers(browser='firefox', os='win')
@@ -36,10 +36,13 @@ async def get_tour_links(id):
         soup = BeautifulSoup(response, 'lxml')
         tournaments = soup.find_all('a', class_='Links_links__c3oXE Links_links_primary__fsjS6')
         nickname = soup.find('div', class_='ProfileUserInfo_profile-user__name__iJAAE').text
+
+
         for tour in tournaments:
             link = tour.get('href')
             tour_hrefs.append('https://gomafia.pro/' + link)
     return tour_hrefs, nickname
+
 
 async def get_total_lx(url, nickname):
     url += '?tab=tournament'
@@ -52,8 +55,9 @@ async def get_total_lx(url, nickname):
         return 0, 0
     for row in rows:
         cells = row.find_all('td')
-        a = cells[1].text.strip()
-        if cells[1].text.strip() == nickname:
+        cleaned_nickname = unicodedata.normalize("NFKD", nickname).strip().lower()
+        cleaned_cell_text = unicodedata.normalize("NFKD", cells[1].text.strip().lower())
+        if cleaned_cell_text == cleaned_nickname:
             total = cells[6].text.strip()
             kills = cells[11].text.strip()
             return total, kills
@@ -63,13 +67,8 @@ async def gomafia_parse(id):
     one_hit_class = 'TableTournamentResultGame_table-tournament-result-game__item_lg__N_ZqL'
     zero_hit_class = 'TableTournamentResultGame_table-tournament-result-game__item_b__cyV3k'
     tours, nickname = await get_tour_links(id)
-    total_zero_maf, total_one_maf, total_two_mafs, total_three_mafs = 0, 0, 0, 0
-    all_kills = 0
-    counter = 0
+    total_zero_maf, total_one_maf, total_two_mafs, total_three_mafs, all_kills = 0, 0, 0, 0, 0
     for tour in tours:
-        if counter != 7:
-            counter += 1
-            continue
         total, kills = await get_total_lx(tour, nickname)
         total = float(total)
         all_kills += int(kills)
@@ -83,11 +82,13 @@ async def gomafia_parse(id):
             for row in rows:
                 columns = row.find_all('td')
                 table_nick = columns[1].text.strip()
+                clean_table_nick = unicodedata.normalize("NFKD", table_nick).strip().lower()
+                clean_nickname = unicodedata.normalize("NFKD", nickname).strip().lower()
                 if columns[2].get('class') is not None:
                     kill_status = columns[2].get('class')
                 else:
                     continue
-                if table_nick != nickname:
+                if clean_table_nick != clean_nickname:
                     continue
                 else:
                     if three_hit_class in kill_status:
@@ -105,26 +106,27 @@ async def gomafia_parse(id):
         total_one_maf += one_or_two_maf_count - two_mafs_count
     return nickname, total_zero_maf, total_one_maf, total_two_mafs, total_three_mafs, all_kills
 
-def output(zero, one, two, three, all):
-    zero = int(zero)
-    one = int(one)
-    two = int(two)
-    three = int(three)
-    all = int(all)
-    hit_pc = int((two + three) / all * 100)
-
-    print(f"За {all} отстрелов ты оставил")
-    print(f"Двойки: {two}")
-    print(f'Тройки: {three}')
-    print(f'В одного: {one}')
-    print(f'Не попал: {zero}')
-    print(f'процент попадания в двойки/тройки - {hit_pc}%')
-
-if __name__ == '__main__':
-    loop = asyncio.get_event_loop()
-    try:
-        nickname, zero, one, two, three, all = loop.run_until_complete(gomafia_parse(867))
-        output(zero, one, two, three, all)
-    except TypeError:
-        print('Неизвестная ошибка')
+# def output(zero, one, two, three, all):
+#     zero = int(zero)
+#     one = int(one)
+#     two = int(two)
+#     three = int(three)
+#     all = int(all)
+#     hit_pc = int((two + three) / all * 100)
+#
+#     print(f"За {all} отстрелов ты оставил")
+#     print(f"Двойки: {two}")
+#     print(f'Тройки: {three}')
+#     print(f'В одного: {one}')
+#     print(f'Не попал: {zero}')
+#     print(f'процент попадания в двойки/тройки - {hit_pc}%')
+#
+#
+# if __name__ == '__main__':
+#     loop = asyncio.get_event_loop()
+#     try:
+#         nickname, zero, one, two, three, all = loop.run_until_complete(gomafia_parse(867))
+#         output(zero, one, two, three, all)
+#     except TypeError:
+#         print('Неизвестная ошибка')
 
