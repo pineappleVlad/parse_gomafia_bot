@@ -21,8 +21,13 @@ async def gomafia_parse(id):
         'three': 0,
         'all': 0,
         'zero_or_one_old_rules': 0,
+        'sher_cards': 0,
+        'sher_death': 0,
+        'red_cards': 0,
         'red_death': 0,
-        'sher_death': 0
+        'death_total_dops': 0,
+        'not_death_total_dops': 0,
+        'tours_count': 0
     }
 
     nickname = await get_nickname(id)

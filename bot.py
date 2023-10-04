@@ -32,7 +32,9 @@ def stat(message):
             return
         hit_pc = int((hits['two'] + hits['three']) / hits['all'] * 100)
         hit_one = int((hits['one'] + hits['two'] + hits['three']) / (hits['all'] - hits['zero_or_one_old_rules'])  * 100)
-        sher_pc = int(hits['sher_death'] / hits['red_death'] * 100)
+        sher_pc = int((hits['sher_death'] / hits['sher_cards']) * 100)
+        red_pc = int((hits['red_death'] / hits['red_cards']) * 100)
+        av_pc = int(hits['all'] / hits['tours_count'])
 
         bot.send_message(message.chat.id,
                          f'📊 Статистика игрока {nickname} \n'
@@ -43,8 +45,11 @@ def stat(message):
                          f'🗿 Не попал: {hits["zero"]} \n'
                          f'👍 Процент попадания в двойки/тройки - {hit_pc}% \n'
                          f'👌 Процент попадания в 1+ черных - {hit_one}% \n'
-                         f'👮 Смертей за шерифа {hits["sher_death"]} \n'
-                         f'🚬 Процент шерифских смертей от общей суммы {sher_pc}% \n'
+                         f'👮 Смертей за шерифа: {hits["sher_death"]} (всего шерифских карт - {hits["sher_cards"]}) \n'
+                         f'❓ Смертей за красного: {hits["red_death"]} (всего красных карт - {hits["red_cards"]}) \n'
+                         f'🚬 Процент пу за шерифа: {sher_pc}% \n'
+                         f'🔴 Процент пу за красного: {red_pc}% \n'
+                         f'🤔 В среднем отстрелов за турнир: {av_pc} \n'
                          )
         # bot.send_message(message.chat.id,
         #                  f'⚠ В зачет не идут отстрелы по старым правилам, где игрок оставил 0/1 черного в лх, а их было: {hits["zero_or_one_old_rules"]} ⚠'

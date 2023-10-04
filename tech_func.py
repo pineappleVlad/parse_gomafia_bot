@@ -59,11 +59,19 @@ async def game_handler(games_list, nickname, old_tags, new_tags, total_hits, rul
             clean_nickname = unicodedata.normalize("NFKD", nickname).strip().lower()
             kill_status = columns[2].get('class')
             role = columns[2]
+            if (clean_nickname == clean_table_nick):
+                if 'Шер' in role:
+                    total_hits['sher_cards'] += 1
+                elif 'Мир' in role:
+                    total_hits['red_cards'] += 1
+
             if (kill_status is not None) and (clean_table_nick == clean_nickname) and ('TableTournamentResultGame_table-tournament-result-game__item_y__f279H' not in kill_status):
                 if 'Шер' in role:
                     total_hits['sher_death'] += 1
                 elif 'Мир' in role:
                     total_hits['red_death'] += 1
+
+
                 if new_tags['three'] in kill_status:
                     total -= 0.5
                     total_hits['three'] += 1
@@ -102,6 +110,7 @@ async def tour_handler(tours, nickname, old_tags, new_tags, total_hits):
         rules = await check_date_tour(tour)
         if rules == False:
             continue
+        total_hits['tours_count'] += 1
         total, kills = await get_total_lx(tour, nickname)
         total = float(total)
         total_hits['all'] += int(kills)
