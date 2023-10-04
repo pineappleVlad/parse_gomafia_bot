@@ -18,7 +18,9 @@ def stat(message):
     async def get_stat():
         try:
             bot.send_message(message.chat.id,
-                             '❗ Собираем информацию, потребуется какое-то время ❗')
+                             f'❗ Собираем информацию, потребуется какое-то время ❗ \n'
+                             f'❗ Обращаем внимание, что сбор статистики начинается с начала января 2023 года, когда в силу вступили новые правила о компенсации ❗ \n'
+                             )
             total_hits, nickname = await gomafia_parse(id)
         except (AttributeError, TypeError):
             bot.send_message(message.chat.id,
@@ -30,6 +32,7 @@ def stat(message):
             return
         hit_pc = int((hits['two'] + hits['three']) / hits['all'] * 100)
         hit_one = int((hits['one'] + hits['two'] + hits['three']) / (hits['all'] - hits['zero_or_one_old_rules'])  * 100)
+        sher_pc = int(hits['sher_death'] / hits['red_death'] * 100)
 
         bot.send_message(message.chat.id,
                          f'📊 Статистика игрока {nickname} \n'
@@ -40,10 +43,12 @@ def stat(message):
                          f'🗿 Не попал: {hits["zero"]} \n'
                          f'👍 Процент попадания в двойки/тройки - {hit_pc}% \n'
                          f'👌 Процент попадания в 1+ черных - {hit_one}% \n'
+                         f'👮 Смертей за шерифа {hits["sher_death"]} \n'
+                         f'🚬 Процент шерифских смертей от общей суммы {sher_pc}% \n'
                          )
-        bot.send_message(message.chat.id,
-                         f'⚠ В зачет не идут отстрелы по старым правилам, где игрок оставил 0/1 черного в лх, а их было: {hits["zero_or_one_old_rules"]} ⚠'
-                         )
+        # bot.send_message(message.chat.id,
+        #                  f'⚠ В зачет не идут отстрелы по старым правилам, где игрок оставил 0/1 черного в лх, а их было: {hits["zero_or_one_old_rules"]} ⚠'
+        #                  )
 
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
