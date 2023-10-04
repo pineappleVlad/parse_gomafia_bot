@@ -22,7 +22,7 @@ def stat(message):
         try:
             bot.send_message(message.chat.id,
                              f'❗ Собираем информацию, потребуется какое-то время ❗ \n'
-                             f'Обращаем внимание, что сбор статистики начинается с начала января 2023 года, когда в силу вступили новые правила о компенсации  \n'
+                             f'Обращаем внимание, что сбор статистики идет с начала января 2023 года, когда в силу вступили новые правила о компенсации  \n'
                              )
             total_hits, nickname = await gomafia_parse(id)
         except (AttributeError, TypeError):
@@ -35,8 +35,17 @@ def stat(message):
             return
         hit_pc = int((hits['two'] + hits['three']) / hits['all'] * 100)
         hit_one = int((hits['one'] + hits['two'] + hits['three']) / (hits['all'] - hits['zero_or_one_old_rules'])  * 100)
-        sher_pc = int((hits['sher_death'] / hits['sher_cards']) * 100)
-        red_pc = int((hits['red_death'] / hits['red_cards']) * 100)
+
+        if hits['sher_cards'] == 0:
+            sher_pc = 0
+        else:
+            sher_pc = int((hits['sher_death'] / hits['sher_cards']) * 100)
+
+        if hits['red_cards'] == 0:
+            red_pc = 0
+        else:
+            red_pc = int((hits['red_death'] / hits['red_cards']) * 100)
+
         av_pc = int(hits['all'] / hits['tours_count'])
 
         bot.send_message(message.chat.id,

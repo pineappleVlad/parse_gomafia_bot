@@ -58,14 +58,14 @@ async def game_handler(games_list, nickname, old_tags, new_tags, total_hits, rul
             clean_table_nick = unicodedata.normalize("NFKD", table_nick).strip().lower()
             clean_nickname = unicodedata.normalize("NFKD", nickname).strip().lower()
             kill_status = columns[2].get('class')
-            role = columns[2]
+            role = columns[2].text
             if (clean_nickname == clean_table_nick):
-                if 'Шер' in role:
+                if 'Шер' == role:
                     total_hits['sher_cards'] += 1
-                elif 'Мир' in role:
+                elif 'Мир' == role:
                     total_hits['red_cards'] += 1
 
-            if (kill_status is not None) and (clean_table_nick == clean_nickname) and ('TableTournamentResultGame_table-tournament-result-game__item_y__f279H' not in kill_status):
+            if (kill_status is not None) and (clean_table_nick == clean_nickname) and ('TableTournamentResultGame_table-tournament-result-game__item_y__f279H' not in kill_status) and ('TableTournamentResultGame_table-tournament-result-game__item_r__4rms7' not in kill_status):
                 if 'Шер' in role:
                     total_hits['sher_death'] += 1
                 elif 'Мир' in role:
