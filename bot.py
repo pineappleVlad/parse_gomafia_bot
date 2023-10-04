@@ -1,7 +1,7 @@
 import telebot
 from config import TOKEN
 import asyncio
-from main import gomafia_parse
+from backend import gomafia_parse
 
 
 bot = telebot.TeleBot(TOKEN)
@@ -19,27 +19,30 @@ def stat(message):
         try:
             bot.send_message(message.chat.id,
                              '❗ Собираем информацию, потребуется какое-то время ❗')
-            nickname, zero, one, two, three, all = await gomafia_parse(id)
+            total_hits, nickname = await gomafia_parse(id)
         except (AttributeError, TypeError):
             bot.send_message(message.chat.id,
                              '❌ По вашему айди невозможно собрать статистику  ❌')
             return
-        zero, one, two, three, all = int(zero), int(one), int(two), int(three), int(all)
-        if all == 0:
+        hits = total_hits[0]
+        if hits['all'] == 0:
             bot.send_message(message.chat.id, 'Не найдено сыгранных турниров 😳')
             return
-        hit_pc = int((two + three) / all * 100)
-        hit_one = int((one + two + three) / all * 100)
+        hit_pc = int((hits['two'] + hits['three']) / hits['all'] * 100)
+        hit_one = int((hits['one'] + hits['two'] + hits['three']) / (hits['all'] - hits['zero_or_one_old_rules'])  * 100)
 
         bot.send_message(message.chat.id,
                          f'📊 Статистика игрока {nickname} \n'
-                         f'💀 Отстрелы: {all} \n'
-                         f'🤓 Двойки: {two} \n'
-                         f'🕶 Тройки: {three} \n'
-                         f'😐 В одного: {one} \n'
-                         f'🗿 Не попал: {zero} \n'
+                         f'💀 Отстрелы: {hits["all"]} \n'
+                         f'🤓 Двойки: {hits["two"]} \n'
+                         f'🕶 Тройки: {hits["three"]} \n'
+                         f'😐 В одного: {hits["one"]} \n'
+                         f'🗿 Не попал: {hits["zero"]} \n'
                          f'👍 Процент попадания в двойки/тройки - {hit_pc}% \n'
                          f'👌 Процент попадания в 1+ черных - {hit_one}% \n'
+                         )
+        bot.send_message(message.chat.id,
+                         f'⚠ В зачет не идут отстрелы по старым правилам, где игрок оставил 0/1 черного в лх, а их было: {hits["zero_or_one_old_rules"]} ⚠'
                          )
 
     loop = asyncio.new_event_loop()
